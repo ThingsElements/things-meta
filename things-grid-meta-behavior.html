@@ -171,6 +171,7 @@ Things.GridMetaBehaviorImpl = {
         if('code-combo' == editor || 'code-column' == editor || 'resource-code' == editor) {
           field.editor = { type: 'list', domainOnly: true, editable: (editor != 'code-column') };
           field.lookupDisplay = true;
+          field.editable = editor != 'code-column';
           field.userData = { resourceType : 'code', resourceName : metaData.ref_name };
           if('resource-code' == editor) {
             field.userData.resourceType = 'entity';
