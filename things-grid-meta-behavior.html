@@ -162,16 +162,29 @@ Things.GridMetaBehaviorImpl = {
       if(metaData.name == 'id') {
         field.width = metaData.grid_rank > 0 ? metaData.grid_width : 0;
       }
-
+      var editor = metaData.grid_editor;
       // align 정보가 있으면 설정
       if(metaData.grid_align) field.styles.textAlignment = metaData.grid_align;
-      var editor = metaData.grid_editor;
 
       if(editor) {
+        if(me.localName.startsWith('things-selector-')){
+          if(editor.indexOf('resource-selector') >= 0){
+            editor ='resource-column';
+          }else if(editor.indexOf('code-combo') >= 0){
+            editor ='code-column';
+          }else{
+            editor = 'readonly';
+          }
+        }
         if('code-combo' == editor || 'code-column' == editor || 'resource-code' == editor) {
           field.editor = { type: 'list', domainOnly: true, editable: (editor != 'code-column') };
           field.lookupDisplay = true;
           field.editable = editor != 'code-column';
+          if(!field.editable){
+            field.styleCallback = function(index, styles){
+                styles.setBackground("#edebeb");
+            }
+          }
           field.userData = { resourceType : 'code', resourceName : metaData.ref_name };
           if('resource-code' == editor) {
             field.userData.resourceType = 'entity';
@@ -182,7 +195,6 @@ Things.GridMetaBehaviorImpl = {
             field.lookupLabels = metaData.code_list.map(function(code) { return code.description });
             field.lookupValues.unshift('');
             field.lookupLabels.unshift('');
-
           } else {
             field.lookupValues = [];
             field.lookupLabels = [];
@@ -216,6 +228,9 @@ Things.GridMetaBehaviorImpl = {
         } else if(editor.indexOf('resource-column') >= 0) {
           me._newResourceColumn(metaData, field);
           field.editable = false;
+          field.styleCallback = function(index, styles){
+              styles.setBackground("#edebeb");
+          }
 
         } else if(editor.indexOf('resource-selector') >= 0) {
           var originalField = field.name;
@@ -327,7 +342,9 @@ Things.GridMetaBehaviorImpl = {
 
         } else if(editor == 'readonly') {
           field.editable = false;
-
+          field.styleCallback = function(index, styles){
+              styles.setBackground("#edebeb");
+          }
           if(metaData.grid_format) {
             if(metaData.col_type == 'integer' || metaData.col_type == 'int' || metaData.col_type == 'long' || metaData.col_type == 'double' || metaData.col_type == 'float') {
               field.styles.numberFormat = metaData.grid_format;
@@ -351,6 +368,12 @@ Things.GridMetaBehaviorImpl = {
             field.editor = { maxLength : metaData.col_size };
           }
         }
+      }else{
+        if(me.localName.startsWith('things-selector-')){
+          field.styleCallback = function(index, styles){
+              styles.setBackground("#edebeb");
+          }
+        }
       }
 
       if(metaData.name != 'id') {
@@ -362,9 +385,9 @@ Things.GridMetaBehaviorImpl = {
       }
 
       if(typeof metaData.ext_field != 'undefined' && metaData.ext_field == true) {
-  			field.userData = field.userData || {};
-  			field.userData.extField = metaData.ext_field;
-  		}
+        field.userData = field.userData || {};
+        field.userData.extField = metaData.ext_field;
+      }
 
       return field;
     });
